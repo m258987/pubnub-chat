@@ -1,0 +1,157 @@
+html {
+    scroll-behavior: smooth;
+}
+
+.activeChannelStyles {
+    font-weight: bold;
+    border: 3px solid red;
+    background-color: white;
+    margin-right: 1em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    padding: 1em 0.5em;
+    position: relative;
+    box-sizing: border-box;
+}
+.channelButtonStyles {
+    font-weight: bold;
+    border: 1px solid black;
+    background-color: white;
+    margin-right: 1em;
+    font-weight: bold;
+    margin-bottom: 1em;
+    padding: 1em 0.5em;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.channelStyles {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.pageStyles {
+    align-items: center;
+    background: black;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.chatStyles {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+}
+
+.headerStyles {
+    background: darkorange;
+    color: black;
+    font-size: 1.4rem;
+    padding: 10px 15px;
+}
+
+.listStyles {
+    align-items: flex-start;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    scroll-behavior: smooth;
+}
+
+.messageStyles {
+    background-color: #eee;
+    border-radius: 5px;
+    color: #333;
+    font-size: 1.1rem;
+    margin: 5px 5px 20px 5px;
+    padding: 8px 15px;
+    word-break: break-all;
+    word-wrap: break-word;
+
+    max-width: 200px;
+
+    animation-name: FadeInFromLeft;
+    animation-duration: 0.5s;
+    animation-timing-function: ease-in-out;
+}
+
+.clientMessageWrapper {
+    margin-left: auto;
+}
+
+.clientMessageStyles {
+    background-color: orange;
+    color: #000;
+    margin-left: auto;
+    animation-name: FadeInFromRight;
+    animation-duration: 0.5;
+    animation-timing-function: ease-in-out;
+}
+
+.message {
+    position: relative;
+}
+
+.messageFormatedTime {
+    position: absolute;
+
+    bottom: -0.2em;
+    left: 0;
+    right: 0;
+    align-self: center;
+
+    width: max-content;
+
+    color: #000;
+    display: grid;
+    place-items: center;
+    border-radius: 1em;
+    display: none;
+}
+.message:hover .messageFormatedTime {
+    display: grid;
+}
+
+.footerStyles {
+    display: flex;
+}
+
+.inputStyles {
+    flex-grow: 1;
+    font-size: 1.1rem;
+    padding: 10px 15px;
+}
+
+.buttonStyles {
+    font-size: 1.1rem;
+    padding: 10px 15px;
+}
+
+@keyframes FadeInFromRight {
+    0% {
+        transform: translateX(10em);
+        opacity: 0;
+    }
+    100% {
+        opacity: 100;
+        right: 0;
+    }
+}
+
+@keyframes FadeInFromLeft {
+    0% {
+        transform: translateX(-10em);
+        opacity: 0;
+    }
+    100% {
+        left: 100;
+        right: 0;
+    }
+}

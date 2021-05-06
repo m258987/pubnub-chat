@@ -25,7 +25,7 @@
 
 # Changelog
 
-## version 0.3.1
+## version 0.3.2
 
 -   patched initial channels configuration
 -   patched double message sending

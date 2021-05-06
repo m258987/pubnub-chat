@@ -29,12 +29,15 @@ export default function Chat() {
     //#region USE EFFECTS
 
     useEffect(() => {
-        const initialChannels = JSON.parse(localStorage.getItem('channels'))
+        const initialChannels =
+            JSON.parse(localStorage.getItem('channels')) || []
+
         setChannels((prevState) => {
             return [...initialChannels]
         })
-        setCurrentChannel(initialChannels[0] || '')
+        setCurrentChannel('')
         if (initialChannels.length > 0) {
+            setCurrentChannel(initialChannels[0] || '')
             pubnub.subscribe({
                 channels: [initialChannels[0]],
                 withPresence: true,

@@ -134,6 +134,86 @@ html {
     padding: 10px 15px;
 }
 
+/* emojies */
+
+.emojiHolder {
+    position: relative;
+    font-size: 2em;
+    background-color: #ffffff;
+    border-width: 1px;
+    border-style: inset;
+    border-color: #000;
+    cursor: pointer;
+}
+.emojiButton:hover,
+.emojiButton:focus {
+    background-color: orange;
+}
+.emojiButton:active {
+    background-color: #333;
+}
+
+.emojiList {
+    position: absolute;
+    font-size: 0.5em;
+    width: 10em;
+    height: 10em;
+    top: -10.1em;
+    right: 0;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(auto, 1fr);
+    column-gap: 2px;
+    row-gap: 2px;
+    border: 1px solid #000;
+    border-radius: 1em 0 0 1em;
+    padding: 0.3em;
+    background-color: rgb(250, 250, 250);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+.emojiList::-webkit-scrollbar {
+    width: 5px;
+    overflow: hidden;
+    height: 50%;
+}
+.emojiList::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+.emojiList::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 10px;
+}
+
+.emojiListHidden {
+    display: none;
+}
+
+.emoji:hover {
+    background-color: orange;
+}
+.emojiList[disabled],
+.emojiButton[disabled],
+.emojiHolder[disabled] {
+    cursor: not-allowed;
+    background-color: #666;
+    filter: saturate(0);
+}
+
+.loader {
+    animation: Loading infinite linear;
+    transition: all 1s ease-in-out;
+}
+
+@keyframes Loading {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 @keyframes FadeInFromRight {
     0% {
         transform: translateX(10em);

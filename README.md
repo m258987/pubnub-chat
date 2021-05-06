@@ -17,9 +17,22 @@
 
 3. Pass a **uuid** prop to the `<ChatContainer />` component, like this:
 
-> `<ChatContainer uuid='username'/>`
+    > `<ChatContainer uuid='username'/>`
 
 \*_project only tested on localhost_
+
+\*_project made with Node v12.19.0._
+
+# Changelog
+
+## version 0.3.0
+
+-   added support for emojis
+-   added a bunch of emojies
+-   added a dedicated emoji button
+-   added an idle page when the user is not subscribed to any channel
+-   optimized data fetching, browser no longer fetches data if user starts with empty channel list
+-   inputs now disabled when user is not subscribed to any channel
 
 ## version 0.2.1
 

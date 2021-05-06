@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef } from 'react'
 
 import { usePubNub } from 'pubnub-react'
 import useSound from 'use-sound'
+import EmojiButton from './EmojiButton'
 
 import './style.css'
 import notificationSound from '../sounds/notification.mp3'
 import sendMessageSound from '../sounds/sendMessage.mp3'
 
+import loader from '../assets/loader.svg'
+
 export default function Chat() {
     const pubnub = usePubNub()
-    const [channels, setChannels] = useState(['default'])
-    const [currentChannel, setCurrentChannel] = useState('default')
+    const [channels, setChannels] = useState([])
+    const [currentChannel, setCurrentChannel] = useState('')
     const [inputChannel, setInputChannel] = useState('')
     const [message, setMessage] = useState('')
     const [messagesByChannel, addMessagesByChannel] = useState([])
@@ -18,7 +21,7 @@ export default function Chat() {
     const [fetchDate, setFetchDate] = useState(Date.now() * 10000)
     const [playNotificationSound] = useSound(notificationSound)
     const [playSendMessageSound] = useSound(sendMessageSound)
-    let fetching = false
+    const [fetching, setFetching] = useState(false)
 
     const scrollingComponent = useRef(null)
 
@@ -29,20 +32,23 @@ export default function Chat() {
         setChannels((prevState) => {
             return [...initialChannels]
         })
-        setCurrentChannel(channels[0])
+        setCurrentChannel(initialChannels[0] || '')
+        if (initialChannels.length > 0) {
+            pubnub.subscribe({
+                channels: [currentChannel],
+                withPresence: true,
+                channelGroups: ['defaultChannel'],
+            })
+
+            usingPubnubFetch(initialChannels[0])
+        }
+
         pubnub.addListener({ message: handleMessage })
 
         //!presense
         // prettier-ignore
         pubnub.addListener({ presence: handlePresense })
 
-        pubnub.subscribe({
-            channels: [currentChannel],
-            withPresence: true,
-            channelGroups: ['defaultChannel'],
-        })
-
-        usingPubnubFetch(currentChannel)
         // eslint-disable-next-line
     }, [])
 
@@ -170,6 +176,12 @@ export default function Chat() {
         }
     }
 
+    const handleEmoji = (emoji) => {
+        setMessage((prevState) => {
+            return prevState + emoji.emoji
+        })
+    }
+
     const handlePresense = (event) => {
         // var action = event.action
         // var channelName = event.channel
@@ -181,7 +193,7 @@ export default function Chat() {
     }
 
     const loadMoreMessages = () => {
-        fetching = true
+        setFetching(true)
         setMultiplier(multiplier + 1)
 
         usingPubnubFetch(currentChannel, true, fetchDate)
@@ -189,7 +201,7 @@ export default function Chat() {
         document.getElementsByClassName(
             `message-${messagesByChannel.length - 100 * multiplier - 1}`
         )
-        fetching = false
+        setFetching(false)
     }
 
     const usingPubnubFetch = (
@@ -197,6 +209,7 @@ export default function Chat() {
         multipleFetch = false,
         start = Date.now() * 10000
     ) => {
+        setFetching(true)
         pubnub.fetchMessages(
             { channels: [channel], start },
             (status, response) => {
@@ -232,6 +245,7 @@ export default function Chat() {
             }
         )
         console.log('messages:', messagesByChannel)
+        setFetching(false)
     }
 
     return (
@@ -288,37 +302,61 @@ export default function Chat() {
                             Load More Messages...
                         </button>
                     )}
-                    {messagesByChannel?.map((message, index) => {
-                        const time = new Date(message.timetoken / 10000)
-                        const formattedTime = `${time.getHours()}:${time.getMinutes()} ; ${time.getDate()}.${time.getMonth()}.${time.getUTCFullYear()}`
-                        return (
-                            <div
-                                key={`message-${index}`}
-                                className={`message-${index} message ${
-                                    message.publisher === pubnub.getUUID() ||
-                                    message.uuid === pubnub.getUUID()
-                                        ? 'clientMessageWrapper'
-                                        : null
-                                }`}
-                            >
-                                <div className="messageFormatedTime">
-                                    {formattedTime}
-                                </div>
-                                <div>{message.publisher || message.uuid}:</div>
+                    {channels.length >= 1 ? (
+                        messagesByChannel?.map((message, index) => {
+                            const time = new Date(message.timetoken / 10000)
+                            const formattedTime = `${time.getHours()}:${time.getMinutes()} ; ${time.getDate()}.${time.getMonth()}.${time.getUTCFullYear()}`
+                            return (
                                 <div
-                                    className={`messageStyles ${
+                                    key={`message-${index}`}
+                                    className={`message-${index} message ${
                                         message.publisher ===
                                             pubnub.getUUID() ||
                                         message.uuid === pubnub.getUUID()
-                                            ? 'clientMessageStyles'
+                                            ? 'clientMessageWrapper'
                                             : null
                                     }`}
                                 >
-                                    {message.message}
+                                    <div className="messageFormatedTime">
+                                        {formattedTime}
+                                    </div>
+                                    <div>
+                                        {message.publisher || message.uuid}:
+                                    </div>
+                                    <div
+                                        className={`messageStyles ${
+                                            message.publisher ===
+                                                pubnub.getUUID() ||
+                                            message.uuid === pubnub.getUUID()
+                                                ? 'clientMessageStyles'
+                                                : null
+                                        }`}
+                                    >
+                                        {message.message}
+                                    </div>
                                 </div>
-                            </div>
-                        )
-                    })}
+                            )
+                        })
+                    ) : (
+                        <div
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                display: 'grid',
+                                placeItems: 'center',
+                            }}
+                        >
+                            {fetching ? (
+                                <img
+                                    src={loader}
+                                    alt="loader"
+                                    className="loader"
+                                />
+                            ) : (
+                                <h2>Please enter a channel to chat</h2>
+                            )}
+                        </div>
+                    )}
                     <div ref={scrollingComponent}></div>
                 </div>
                 <div className={'footerStyles'}>
@@ -327,14 +365,20 @@ export default function Chat() {
                         className={'inputStyles'}
                         placeholder="Type your message"
                         value={message}
+                        disabled={channels.length === 0}
                         onKeyPress={(e) => {
                             if (e.key !== 'Enter') return
                             sendMessage(message)
                         }}
                         onChange={(e) => setMessage(e.target.value)}
                     />
+                    <EmojiButton
+                        handleEmoji={handleEmoji}
+                        isDisabled={channels.length === 0}
+                    />
                     <button
                         className={'buttonStyles'}
+                        disabled={channels.length === 0}
                         onClick={(e) => {
                             e.preventDefault()
                             sendMessage(message)

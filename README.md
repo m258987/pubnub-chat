@@ -25,9 +25,14 @@
 
 # Changelog
 
+## version 0.3.1
+
+-   patched initial channels configuration
+-   patched double message sending
+
 ## version 0.3.0
 
--   added support for emojis
+-   added support for emojies
 -   added a bunch of emojies
 -   added a dedicated emoji button
 -   added an idle page when the user is not subscribed to any channel

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { usePubNub } from 'pubnub-react'
 import useSound from 'use-sound'
 import EmojiButton from './EmojiButton'
+import ReactButton from './ReactButton'
 
 import './style.css'
 import notificationSound from '../sounds/notification.mp3'
@@ -35,7 +36,7 @@ export default function Chat() {
         setCurrentChannel(initialChannels[0] || '')
         if (initialChannels.length > 0) {
             pubnub.subscribe({
-                channels: [currentChannel],
+                channels: [initialChannels[0]],
                 withPresence: true,
                 channelGroups: ['defaultChannel'],
             })
@@ -102,7 +103,11 @@ export default function Chat() {
     const sendMessage = (message) => {
         if (message) {
             pubnub
-                .publish({ channel: currentChannel, message })
+                .publish({
+                    channel: currentChannel,
+                    message,
+                    // meta: [{ uuid: 'Vasil Kostadinov', reaction: 1 }],
+                })
                 .then(() => setMessage(''))
                 .then(() => playSendMessageSound())
         }

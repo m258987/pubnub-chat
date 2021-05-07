@@ -3,13 +3,14 @@ import React, { useState, useEffect, useRef } from 'react'
 import { usePubNub } from 'pubnub-react'
 import useSound from 'use-sound'
 import EmojiButton from './EmojiButton'
-import ReactButton from './ReactButton'
+// import ReactButton from './ReactButton'
 
 import './style.css'
 import notificationSound from '../sounds/notification.mp3'
 import sendMessageSound from '../sounds/sendMessage.mp3'
 
 import loader from '../assets/loader.svg'
+import chevron from '../assets/chevron.svg'
 
 export default function Chat() {
     const pubnub = usePubNub()
@@ -23,6 +24,7 @@ export default function Chat() {
     const [playNotificationSound] = useSound(notificationSound)
     const [playSendMessageSound] = useSound(sendMessageSound)
     const [fetching, setFetching] = useState(false)
+    const [channelsIsCollapsed, setCollapsedChannels] = useState(false)
 
     const scrollingComponent = useRef(null)
 
@@ -53,6 +55,8 @@ export default function Chat() {
         // prettier-ignore
         pubnub.addListener({ presence: handlePresense })
 
+        pubnub.addListener({})
+
         // eslint-disable-next-line
     }, [])
 
@@ -64,6 +68,11 @@ export default function Chat() {
         //     )
         //     console.table(messagesByChannel)
         console.log('%ccurrent channel:', 'color:pink', currentChannel)
+
+        if (currentChannel) {
+            getUsersInChannel(currentChannel)
+        }
+
         // eslint-disable-next-line
     }, [currentChannel])
     //? end console logs
@@ -81,6 +90,15 @@ export default function Chat() {
     }, [messagesByChannel])
 
     //#endregion USE EFFECTS
+
+    const getUsersInChannel = (channel) => {
+        channel !== '' &&
+            pubnub.objects
+                .getChannelMembers({ channel })
+                .then((response) =>
+                    console.log('members of channel ' + channel, response)
+                )
+    }
 
     const handleMessage = async (message) => {
         console.log('%cCHAT-EVENT', 'color:green')
@@ -101,6 +119,9 @@ export default function Chat() {
         // ) {
         playNotificationSound()
         // }
+        if (currentChannel) {
+            getUsersInChannel(currentChannel)
+        }
     }
 
     const sendMessage = (message) => {
@@ -258,51 +279,70 @@ export default function Chat() {
 
     return (
         <div className={'pageStyles'}>
+            <div
+                onClick={() => setCollapsedChannels((prevState) => !prevState)}
+                className={`hideChannelsButton ${
+                    channelsIsCollapsed ? 'hideChannelsButtonCollapsed' : null
+                }`}
+            >
+                <img src={chevron} alt="chevron" style={{ width: '100%' }} />
+            </div>
+            <div
+                className={`channelStyles ${
+                    channelsIsCollapsed ? 'channelsCollapsed' : null
+                }`}
+            >
+                <h3>Chat</h3>
+                <form
+                    className={'channelsForm'}
+                    onSubmit={(e) => {
+                        handleSubmit(e)
+                    }}
+                >
+                    <input
+                        className={'channelsInput'}
+                        placeholder={'Search...'}
+                        value={inputChannel}
+                        onChange={(e) => setInputChannel(e.target.value)}
+                    ></input>
+                </form>
+                <div className="channelsList">
+                    {channels.map((channel) => {
+                        return (
+                            <div
+                                key={channel}
+                                onClick={() => {
+                                    handleSelectChannel(channel)
+                                }}
+                                className={
+                                    channel === currentChannel
+                                        ? 'activeChannelStyles'
+                                        : 'channelButtonStyles'
+                                }
+                            >
+                                {channel}
+
+                                <button
+                                    style={{
+                                        position: 'absolute',
+                                        right: '0',
+                                        top: '0',
+                                    }}
+                                    onClick={() => removeChannel(channel)}
+                                >
+                                    X
+                                </button>
+                            </div>
+                        )
+                    })}
+                </div>
+                <div className="channelsProfile">
+                    <h4>{pubnub.getUUID()}</h4>
+                </div>
+            </div>
             <div className={'chatStyles'}>
                 <div className={'headerStyles'}>
-                    <h3>Pubnub</h3>
-                    <form
-                        onSubmit={(e) => {
-                            handleSubmit(e)
-                        }}
-                    >
-                        <input
-                            placeholder={'Choose a person to chat with...'}
-                            value={inputChannel}
-                            onChange={(e) => setInputChannel(e.target.value)}
-                        ></input>
-                    </form>
-                    <div className={'channelStyles'}>
-                        Channels you have joined:
-                        {channels.map((channel) => {
-                            return (
-                                <div
-                                    key={channel}
-                                    onClick={() => {
-                                        handleSelectChannel(channel)
-                                    }}
-                                    className={
-                                        channel === currentChannel
-                                            ? 'activeChannelStyles'
-                                            : 'channelButtonStyles'
-                                    }
-                                >
-                                    {channel}
-
-                                    <button
-                                        style={{
-                                            position: 'absolute',
-                                            right: '0',
-                                            top: '0',
-                                        }}
-                                        onClick={() => removeChannel(channel)}
-                                    >
-                                        X
-                                    </button>
-                                </div>
-                            )
-                        })}
-                    </div>
+                    channel: <b>{!!currentChannel && currentChannel}</b>
                 </div>
                 <div className={'listStyles'}>
                     {messagesByChannel.length >= 100 * multiplier && (

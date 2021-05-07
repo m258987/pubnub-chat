@@ -25,6 +25,17 @@
 
 # Changelog
 
+## version 0.4.0
+
+-   redesigned Channels menu
+    -   moved channels to the right
+    -   stylized search input
+    -   made menu collapsible
+    -   added user profile on lower left of the channels menu
+    -   added a channels collapse button
+    -   added animations
+-   added `current channel` label in the header
+
 ## version 0.3.2
 
 -   patched initial channels configuration
